@@ -1,4 +1,14 @@
+--- #################### Spring 应用 配置 ###################
+server:
+  port: 8081
+
+--- #################### ai 配置 ###################
 spring:
   ai:
     dashscope:
-      api-key: ${AI_DASHSCOPE_API_KEY}
+#      api-key: ${AI_DASHSCOPE_API_KEY} # 配置大模型访问 key.
+      api-key: 'sk-ws-H.PIHLXHH.fPIv.MEMCHysyi1TFXIKv1_5njtToDv5aKPS5U9Q1ZDw-HSr7ls4CIGb56ROGNNTck18l40W5yqEsQY_-kVEW32Tc5r9yt2Qd' # 配置大模型访问 key.
+      base-url: 'https://ws-uh2v3ki9kl4yvhyu.cn-beijing.maas.aliyuncs.com'
+      chat:
+        options:
+          model: 'qwen3.7-plus'

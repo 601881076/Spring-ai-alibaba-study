@@ -16,8 +16,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SaaConfig {
 
-    @Value("${}")
+    @Value("${spring.ai.dashscope.api-key}")
     private String apiKey;
+    @Value("${spring.ai.dashscope.base-url}")
+    private String baseUrl;
+    @Value("${spring.ai.dashscope.chat.options.model}")
+    private String model;
 
     /**
      * 初始化 dashScope 协议
@@ -26,7 +30,8 @@ public class SaaConfig {
     @Bean
     public DashScopeApi dashScopeApi() {
         return DashScopeApi.builder()
-                .apiKey(System.getenv("AI_DASHSCOPE_API_KEY"))
+                .apiKey(apiKey)
+                .baseUrl(baseUrl)
                 .build();
     }
 
@@ -40,7 +45,6 @@ public class SaaConfig {
         return DashScopeChatModel.builder().dashScopeApi(dashScopeApi()).build();
     }
 }
-
 
 
 
