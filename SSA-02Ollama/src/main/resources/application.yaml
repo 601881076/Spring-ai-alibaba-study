@@ -1,0 +1,25 @@
+--- #################### Spring 应用 配置 ###################
+server:
+  servlet:
+    encoding:
+      enabled: true
+      force: true
+      charset: utf-8
+  port: 8081
+
+spring:
+  application:
+    name: 'SAA-02Ollama'
+
+--- #################### ai ollama 配置 ###################
+spring:
+  ai:
+    model:
+      chat: ollama
+    ollama:
+      base-url: http://192.168.71.65:11434
+      init:
+        pull-model-strategy: never
+      chat:
+        options:
+          model: qwen3.5:4b

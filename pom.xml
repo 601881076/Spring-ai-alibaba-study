@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>SSA-01HelloWorld</module>
+        <module>SSA-02Ollama</module>
     </modules>
 
     <properties>
@@ -41,6 +42,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 
