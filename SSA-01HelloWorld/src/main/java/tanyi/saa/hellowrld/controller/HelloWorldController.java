@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,12 +41,14 @@ public class HelloWorldController {
     }
 
     /**
-     * 使用流式输出
-     * @param msg
-     * @return
+     * 通过 SSE 逐段返回模型回答。
+     * @param msg 用户输入
+     * @return 回答的文本片段
      */
-    @GetMapping("/doStream")
+    @GetMapping(value = "/doStream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> doStream(@RequestParam(name = "msg", defaultValue = "你是谁") String msg) {
+        // 用户输入可能包含敏感信息，只记录长度。
+        log.info("doStream input: msgLength={}", msg.length());
         return chatModel.stream(msg);
     }
 

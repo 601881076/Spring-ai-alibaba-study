@@ -2,6 +2,7 @@ package tanyi.saa.hellowrld.config;
 
 import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
+import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,8 @@ public class SaaConfig {
     private String baseUrl;
     @Value("${spring.ai.dashscope.chat.options.model}")
     private String model;
+    @Value("${spring.ai.dashscope.chat.options.multi-model:false}")
+    private boolean multiModel;
 
     /**
      * 初始化 dashScope 协议
@@ -42,11 +45,17 @@ public class SaaConfig {
      */
     @Bean
     public ChatModel chatModel() {
-        return DashScopeChatModel.builder().dashScopeApi(dashScopeApi()).build();
+        // 手动创建模型时需显式传入配置，否则会使用 SDK 默认的 qwen-plus。
+        return DashScopeChatModel.builder()
+                .dashScopeApi(dashScopeApi())
+                // 多模态模型需要匹配的端点和消息格式，即使本次只输入文本。
+                .defaultOptions(DashScopeChatOptions.builder()
+                        .model(model)
+                        .multiModel(multiModel)
+                        .build())
+                .build();
     }
 }
-
-
 
 
 

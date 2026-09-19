@@ -11,4 +11,7 @@ spring:
       base-url: 'https://ws-uh2v3ki9kl4yvhyu.cn-beijing.maas.aliyuncs.com'
       chat:
         options:
-          model: 'qwen3.7-plus'
+#          model: 'qwen3.7-plus'
+          model: 'deepseek-v4.1-flash'
+          # 此模型使用多模态端点，纯文本请求也需启用。
+          multi-model: true
