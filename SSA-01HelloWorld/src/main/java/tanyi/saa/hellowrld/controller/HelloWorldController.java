@@ -45,7 +45,8 @@ public class HelloWorldController {
      * @param msg 用户输入
      * @return 回答的文本片段
      */
-    @GetMapping(value = "/doStream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    // @GetMapping(value = "/doStream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/doStream", produces = MediaType.TEXT_PLAIN_VALUE)
     public Flux<String> doStream(@RequestParam(name = "msg", defaultValue = "你是谁") String msg) {
         // 用户输入可能包含敏感信息，只记录长度。
         log.info("doStream input: msgLength={}", msg.length());
