@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SSE流式chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #messageInput {
+            width: 90%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #messages {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #messages div {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            color: #333;
+        }
+
+        #messages div:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+<textarea id="messageInput" rows="4" cols="50" placeholder="请输入你的问题..."></textarea><br>
+<button onclick="sendMsg()">发送提问</button>
+<div id="messages"></div>
+<script>
+    function sendMsg() {
+        // 获取用户输入的消息
+        const message = document.getElementById('messageInput').value;
+        if (message === "") return false;
+
+        //1 客户端使用 JavaScript 的 EventSource 对象连接到服务器上的一个特定端点（URL）
+        const eventSource = new EventSource('stream/chatflux2?question=' + encodeURIComponent(message));
+        //2 监听消息事件
+        eventSource.onmessage = function (event) {
+            // 获取流式返回的数据
+            const data = event.data;
+            // 将接收到的数据展示到页面上
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.textContent += data;
+        };
+
+        //3 监听错误事件
+        eventSource.onerror = function (error) {
+            console.error('EventSource 发生错误：', error);
+            eventSource.close(); // 关闭连接
+        };
+    }
+</script>
+</body>
+</html>

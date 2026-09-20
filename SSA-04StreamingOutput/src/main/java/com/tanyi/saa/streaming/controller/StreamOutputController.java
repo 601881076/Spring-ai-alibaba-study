@@ -11,6 +11,7 @@ import jakarta.annotation.Resource;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,12 +28,12 @@ public class StreamOutputController {
     private ChatModel qwenChatModel;
 
 
-    @GetMapping(value = "/stream/chatflux1")
+    @GetMapping(value = "/stream/chatflux1", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chatflux(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
         return deepseekChatModel.stream(question);
     }
 
-    @GetMapping(value = "/stream/chatflux2")
+    @GetMapping(value = "/stream/chatflux2", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chatflux2(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
         return qwenChatModel.stream(question);
     }
@@ -48,12 +49,12 @@ public class StreamOutputController {
     @Qualifier("qwenChatClient")
     private ChatClient qwenChatClient;
 
-    @GetMapping("/stream/chatflux3")
+    @GetMapping(value = "/stream/chatflux3", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chatflux3(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
         return deepseekChatClient.prompt(question).stream().content();
     }
 
-    @GetMapping("/stream/chatflux4")
+    @GetMapping(value = "/stream/chatflux4", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chatflux4(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
         return qwenChatClient.prompt(question).stream().content();
     }
