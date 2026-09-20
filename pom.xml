@@ -12,6 +12,7 @@
         <module>SSA-01HelloWorld</module>
         <module>SSA-02Ollama</module>
         <module>SSA-03ChatClient</module>
+        <module>SSA-04StreamingOutput</module>
     </modules>
 
     <properties>
