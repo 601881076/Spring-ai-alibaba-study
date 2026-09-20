@@ -8,7 +8,9 @@ package com.tanyi.saa.streaming.controller;
  **/
 
 import jakarta.annotation.Resource;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,5 +33,23 @@ public class StreamOutputController {
     @GetMapping(value = "/stream/chatflux2")
     public Flux<String> chatflux2(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
         return qwenChatModel.stream(question);
+    }
+
+    @Resource
+    @Qualifier("deepSeekChatClient")
+    private ChatClient deepseekChatClient;
+
+    @Resource
+    @Qualifier("qwenChatClient")
+    private ChatClient qwenChatClient;
+
+    @GetMapping("/stream/chatflux3")
+    public Flux<String> chatflux3(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
+        return deepseekChatClient.prompt(question).stream().content();
+    }
+
+    @GetMapping("/stream/chatflux4")
+    public Flux<String> chatflux4(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
+        return qwenChatClient.prompt(question).stream().content();
     }
 }
