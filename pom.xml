@@ -11,6 +11,7 @@
     <modules>
         <module>SSA-01HelloWorld</module>
         <module>SSA-02Ollama</module>
+        <module>SSA-03ChatClient</module>
     </modules>
 
     <properties>
@@ -43,6 +44,17 @@
                 <scope>import</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.38</version>
+            </dependency>
+
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>5.8.35</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
