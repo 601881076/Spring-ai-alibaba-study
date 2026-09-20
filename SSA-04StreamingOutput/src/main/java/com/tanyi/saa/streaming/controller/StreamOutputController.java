@@ -18,6 +18,8 @@ import reactor.core.publisher.Flux;
 
 @RestController
 public class StreamOutputController {
+    // ************************ 使用 ChatModel 同时存在多模型 ********************
+
     //V1 通过ChatModel实现stream实现流式输出
     @Resource(name = "deepseek")
     private ChatModel deepseekChatModel;
@@ -34,6 +36,9 @@ public class StreamOutputController {
     public Flux<String> chatflux2(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
         return qwenChatModel.stream(question);
     }
+
+    // ************************ 使用 ChatClient 同时存在多模型 ********************
+
 
     @Resource
     @Qualifier("deepSeekChatClient")

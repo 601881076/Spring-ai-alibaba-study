@@ -26,6 +26,7 @@ public class SaaLLMConfig {
     private final String DEEPSEEK_MODEL = "deepseek-v3";
     private final String QWEN_MODEL = "qwen-plus";
 
+    // ************************ 使用 ChatModel 同时存在多模型 ********************
     /**
      * 注入 deepSeek ChatModel
      * @return
@@ -54,6 +55,7 @@ public class SaaLLMConfig {
                 .build();
     }
 
+    // ************************ 使用 ChatClient 同时存在多模型 ********************
     /**
      * 注入 deepseek chatClient
      * @return
