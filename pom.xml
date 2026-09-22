@@ -15,6 +15,7 @@
         <module>SSA-04StreamingOutput</module>
         <module>SAA-05Chat-Prompt</module>
         <module>SAA-06PromptTemplate</module>
+        <module>SAA-07StructuredOutput</module>
     </modules>
 
     <properties>
