@@ -14,6 +14,7 @@
         <module>SSA-03ChatClient</module>
         <module>SSA-04StreamingOutput</module>
         <module>SAA-05Chat-Prompt</module>
+        <module>SAA-06PromptTemplate</module>
     </modules>
 
     <properties>
