@@ -3,6 +3,7 @@ package com.tanyi.saa.prompt.controller;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
@@ -63,6 +64,47 @@ public class PromptController {
 
         // 构建响应
         return deepseekChatModel.stream(prompt).mapNotNull(response -> response.getResults().getFirst().getOutput().getText());
+    }
+
+    /**
+     * 获取 chatResponse : LLM 响应的原数据
+     * http://localhost:8081/prompt/chat4?question=葫芦娃
+     * @param question
+     * @return
+     */
+    @GetMapping("/prompt/chat4")
+    public Flux<ChatResponse> chat4(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
+        // AssistantMessage assistantMessage = deepseekChatClient.prompt().user(question).stream();
+        return deepseekChatClient.prompt().user(question).stream().chatResponse();
+    }
+
+    /**
+     * 如何遍历 stream 的数据
+     * http://localhost:8081/prompt/chat5?question=葫芦娃
+     * @param question
+     * @return
+     */
+    @GetMapping("/prompt/chat5")
+    public Flux<String> chat5(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
+        // deepseekChatClient.prompt().user(question).stream();
+
+        return deepseekChatClient.prompt()
+                .user(question)
+                .stream()
+                .chatResponse()
+                .mapNotNull(response -> response.getResults().getFirst().getOutput().getText());
+    }
+
+    /**
+     * 搭配 Assistant 提示词角色
+     * http://localhost:8081/prompt/chat6?question=葫芦娃
+     * @param question
+     * @return
+     */
+    @GetMapping("/prompt/chat6")
+    public String chat6(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
+        AssistantMessage assistantMessage = deepseekChatClient.prompt().user(question).call().chatResponse().getResult().getOutput();
+        return assistantMessage.getText();
     }
 
 }
