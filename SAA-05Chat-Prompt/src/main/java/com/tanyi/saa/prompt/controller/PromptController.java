@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
+
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -107,4 +110,27 @@ public class PromptController {
         return assistantMessage.getText();
     }
 
+    /**
+     * 搭配 TOOL 提示词角色
+     *
+     * http://localhost:8081/prompt/chat7?city=上海
+     * @return
+     */
+    @GetMapping("/prompt/chat7")
+    public String chat7(@RequestParam(name = "city") String city) {
+        // 调用 LLM
+        String answer = deepseekChatClient.prompt().user(city + "未来3天天气情况如何?").call().chatResponse().getResult().getOutput().getText();
+
+        // 简单的构建一个工具
+        ToolResponseMessage toolResponseMessage = ToolResponseMessage.builder()
+                .responses(List.of(new ToolResponseMessage.ToolResponse("1","获得天气", city)))
+                .build();
+
+        // 获得工具执行的结果
+        String toolResponse = toolResponseMessage.getText();
+
+        // 将 LLM 结果与 tool 结果拼接
+        String result = answer + toolResponse;
+        return result;
+    }
 }
