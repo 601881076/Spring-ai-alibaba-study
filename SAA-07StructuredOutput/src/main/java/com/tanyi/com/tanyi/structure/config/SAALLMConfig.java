@@ -44,7 +44,10 @@ public class SAALLMConfig {
     public ChatModel deepseekChatModel() {
         return DashScopeChatModel.builder()
                 .dashScopeApi(dashScopeApi())
-                .defaultOptions(DashScopeChatOptions.builder().model(DEEPSEEK_MODEL).build())
+                .defaultOptions(DashScopeChatOptions.builder()
+                        .model(DEEPSEEK_MODEL)
+                        .multiModel(true)
+                        .build())
                 .build();
     }
 
@@ -54,9 +57,13 @@ public class SAALLMConfig {
      */
     @Bean("qwenChatModel")
     public ChatModel qwenChatModel() {
+        // 手动创建模型不会绑定 YAML 中的 multi-model；qwen3.7-plus 的纯文本请求也必须走多模态端点。
         return DashScopeChatModel.builder()
                 .dashScopeApi(dashScopeApi())
-                .defaultOptions(DashScopeChatOptions.builder().model(QWEN_MODEL).build())
+                .defaultOptions(DashScopeChatOptions.builder()
+                        .model(QWEN_MODEL)
+                        .multiModel(true)
+                        .build())
                 .build();
     }
 
@@ -85,7 +92,6 @@ public class SAALLMConfig {
                 .build();
     }
 }
-
 
 
 
