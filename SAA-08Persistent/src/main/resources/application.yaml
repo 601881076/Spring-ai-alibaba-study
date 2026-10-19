@@ -25,8 +25,8 @@ spring:
   data:
     redis:
       host: '47.115.218.223'
-      port: '6379'
+      port: 6379
       database: '0'
-      connect-timeout: '3'
-      timeout: '2'
+      connect-timeout: '3000'
+      timeout: '2000'
       password: 'TmwyFwH2'
