@@ -10,7 +10,6 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -62,9 +61,15 @@ public class SaaLLMConfig {
      */
     @Bean(name = "qwen")
     public ChatModel qwen() {
+        // Qwen3.7-Plus 需要通过多模态接口调用。
+        DashScopeChatOptions options = DashScopeChatOptions.builder()
+                .model(QWEN_MODEL)
+                .multiModel(true)
+                // .enableThinking(false)
+                .build();
         return DashScopeChatModel.builder()
                 .dashScopeApi(dashScopeApi())
-                .defaultOptions(DashScopeChatOptions.builder().model(QWEN_MODEL).build()) // 指定 LLM 模型位 qwen
+                .defaultOptions(options)
                 .build();
     }
 
@@ -88,7 +93,6 @@ public class SaaLLMConfig {
 
         // 构建 Qwen ChatClient，并注册默认模型参数和对话记忆顾问
         return ChatClient.builder(qwen) // 使用注入的 Qwen ChatModel 创建客户端构造器
-                .defaultOptions(ChatOptions.builder().model(QWEN_MODEL).build()) // 设置 ChatClient 默认使用的 Qwen 模型， 如果qwenChatModel已经指定了模型，则此处不需要设置。
                 .defaultAdvisors(MessageChatMemoryAdvisor.builder(windowChatMemory).build()) // 为请求添加持久化对话记忆能力
                 .build(); // 完成 ChatClient 对象构建
     }
