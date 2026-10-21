@@ -20,6 +20,7 @@
         <module>SAA-09Text2image</module>
         <module>SAA-10Text2voice</module>
         <module>SAA-11Embed2vector</module>
+        <module>SAA-12RAG4AiOps</module>
     </modules>
 
     <properties>
