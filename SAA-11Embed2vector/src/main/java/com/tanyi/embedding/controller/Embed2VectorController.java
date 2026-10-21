@@ -12,8 +12,9 @@ import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,56 +34,59 @@ public class Embed2VectorController {
     private VectorStore vectorStore;
 
     /**
-     * 文本向量化
-     * http://localhost:8011/text2embed?msg=射雕英雄传
+     * 将请求文本转换为向量。
+     * http://localhost:8081/text2embed?msg=%E5%B0%84%E9%9B%95%E8%8B%B1%E9%9B%84%E4%BC%A0
      *
-     * @param msg
-     * @return
+     * @param msg 待向量化的文本
+     * @return 包含模型生成向量的异步响应
      */
     @GetMapping("/text2embed")
-    public EmbeddingResponse text2Embed(String msg) {
-        // EmbeddingResponse embeddingResponse = embeddingModel.call(new EmbeddingRequest(List.of(msg), null));
-        EmbeddingResponse embeddingResponse = embeddingModel.call(
-                new EmbeddingRequest(
-                        List.of(msg),
-                        DashScopeEmbeddingOptions.builder()
-                                .model("qwen3.7-text-embedding")
-                                .build()
-                )
-        );
-
-        System.out.println(Arrays.toString(embeddingResponse.getResult().getOutput()));
-        return embeddingResponse;
+    public Mono<EmbeddingResponse> text2Embed(@RequestParam(name = "msg") String msg) {
+        log.info("文本向量化，文本长度={}", msg.length());
+        // 同步模型请求使用工作线程，避免阻塞 WebFlux 事件线程。
+        return Mono.fromCallable(() -> {
+            DashScopeEmbeddingOptions options = DashScopeEmbeddingOptions.builder()
+                    .model("qwen3.7-text-embedding")
+                    .build();
+            return embeddingModel.call(new EmbeddingRequest(List.of(msg), options));
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     /**
-     * 将向量添加到 向量数据库中
+     * 将示例文档转换为向量并写入 Redis。
+     *
+     * @return 写入完成的异步信号
      */
     @GetMapping("/embed2vector/add")
-    public void add() {
-        List<Document> documents = List.of(
-                new Document("i study LLM"),
-                new Document("i love java")
-        );
-
-        vectorStore.add(documents);
+    public Mono<Void> add() {
+        log.info("写入示例文档，请求参数为空");
+        // 向量生成和 Redis 写入均为同步调用，使用工作线程执行。
+        return Mono.<Void>fromRunnable(() -> {
+            List<Document> documents = List.of(
+                    new Document("i study LLM"),
+                    new Document("i love java")
+            );
+            vectorStore.add(documents);
+            log.info("示例文档写入完成，文档数={}", documents.size());
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     /**
-     * 从向量数据库中获取向量
-     * @param msg
-     * @return
+     * 根据查询文本检索相似文档。
+     *
+     * @param msg 用于语义检索的文本
+     * @return 按相似度匹配的文档列表
      */
     @GetMapping("/embed2vector/get")
-    public List getAll(@RequestParam(name = "msg") String msg) {
-        SearchRequest searchRequest = SearchRequest.builder()
-                .query(msg)
-                .topK(2)
-                .build();
-
-        List<Document> list = vectorStore.similaritySearch(searchRequest);
-        System.out.println(list);
-
-        return list;
+    public Mono<List<Document>> getAll(@RequestParam(name = "msg") String msg) {
+        log.info("检索相似文档，查询文本长度={}", msg.length());
+        // 查询向量生成和 Redis 检索使用工作线程，避免阻塞事件线程。
+        return Mono.fromCallable(() -> {
+            SearchRequest searchRequest = SearchRequest.builder()
+                    .query(msg)
+                    .topK(2)
+                    .build();
+            return vectorStore.similaritySearch(searchRequest);
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 }

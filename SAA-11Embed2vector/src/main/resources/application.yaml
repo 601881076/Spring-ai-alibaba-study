@@ -29,9 +29,8 @@ spring:
         prefix: custom-prefix
   data:
     redis:
-      host: '47.115.218.223'
+      host: '101.132.255.42'
       port: 6379
       database: '0'
       connect-timeout: '3000'
       timeout: '2000'
-      password: 'TmwyFwH2'
