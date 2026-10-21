@@ -21,6 +21,7 @@
         <module>SAA-10Text2voice</module>
         <module>SAA-11Embed2vector</module>
         <module>SAA-12RAG4AiOps</module>
+        <module>SAA-13ToolCalling</module>
     </modules>
 
     <properties>
