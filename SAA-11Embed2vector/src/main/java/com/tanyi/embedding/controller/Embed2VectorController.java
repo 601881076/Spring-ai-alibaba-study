@@ -59,6 +59,7 @@ public class Embed2VectorController {
 
     /**
      * 将请求文本转换为向量并写入 Redis。
+     * http://localhost:8081/embed2vector/add?msg=射雕英雄传
      *
      * @param msg 待保存的文本
      * @return 写入完成的异步信号
@@ -75,21 +76,8 @@ public class Embed2VectorController {
     }
 
     /**
-     * 先生成文本向量，再将同一文本写入 Redis；写入过程会再次生成向量。
-     * http://localhost:8081/text2embeddingAndSave?msg=%E5%B0%84%E9%9B%95%E8%8B%B1%E9%9B%84%E4%BC%A0
-     * @param msg 待向量化并保存的文本
-     * @return 保存完成后返回首次向量化的响应
-     */
-    @GetMapping("/text2embeddingAndSave")
-    public Mono<EmbeddingResponse> text2embeddingAndSave(@RequestParam(name = "msg") String msg) {
-        log.info("文本向量化并保存，文本长度={}", msg.length());
-        return text2Embed(msg)
-                .flatMap(response -> add(msg).thenReturn(response));
-    }
-
-    /**
      * 根据查询文本检索相似文档。
-     * http://localhost:8081//embed2vector/get?msg=牛蛙
+     * http://localhost:8081/embed2vector/get?msg=牛蛙
      * @param msg 用于语义检索的文本
      * @return 按相似度匹配的文档列表
      */
