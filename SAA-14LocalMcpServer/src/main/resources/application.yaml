@@ -1,0 +1,19 @@
+server:
+  port: 8081
+  servlet:
+    encoding:
+      # 设置全局编码格式
+      enabled: true
+      force: true
+      charset: UTF-8
+
+spring:
+  application:
+    name: SAA-14LocalMcpServer
+  ai:
+    mcp:
+      server:
+        # ====mcp-server Config=============
+        type: async
+        name: customer-define-mcp-server
+        version: 1.0.0
