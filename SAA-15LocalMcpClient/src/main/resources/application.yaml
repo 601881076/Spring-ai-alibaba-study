@@ -1,0 +1,55 @@
+server:
+  port: 8015
+  servlet:
+    encoding:
+      # 设置全局编码格式
+      enabled: true
+      force: true
+      charset: UTF-8
+
+--- #################### ai 配置 ###################
+spring:
+  ai:
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY} # 配置大模型访问 key.
+      base-url: 'https://ws-uh2v3ki9kl4yvhyu.cn-beijing.maas.aliyuncs.com'
+      chat:
+        options:
+          model: 'qwen3.7-plus'
+          # 此模型使用多模态端点，纯文本请求也需启用。
+          multi-model: true
+
+---
+#################### MCP 配置 ###################
+spring:
+  ai:
+    mcp:
+      client:
+        # ====mcp-client Config=============
+
+        # 客户端通信模式：async (异步)。
+        # 意味着客户端与 MCP Server 的交互不会阻塞主线程。
+        type: async
+
+        # 请求超时时间：60秒。
+        # 因为调用外部工具（如查询数据库、调用第三方API）或等待大模型决策可能需要较长时间，
+        # 设置合理的超时时间可以避免连接因短暂无响应而断开。
+        request-timeout: 60s
+
+        # 工具回调机制开关：true。
+        # 开启后，客户端会自动获取 MCP Server 提供的工具列表，
+        # 并将其转换为大模型能理解的 Tool Calling 格式（注册到 Spring AI 的上下文中），
+        # 从而让大模型拥有调用这些工具的能力。
+        toolcallback:
+          enabled: true
+
+        # 传输协议配置：SSE (Server-Sent Events)。
+        # 客户端将通过 HTTP 长连接与 MCP Server 建立单向推送通道。
+        sse:
+          # 定义可连接的 MCP Server 列表
+          connections:
+            # 自定义的连接名称（标识符）
+            mcp-server1:
+              # 目标 MCP Server 的地址和端口。
+              # 这里指向了本地 8014 端口（即我们之前配置的 Server 端 SAA-14LocalMcpServer）。
+              url: http://localhost:8081

@@ -23,6 +23,7 @@
         <module>SAA-12RAG4AiOps</module>
         <module>SAA-13ToolCalling</module>
         <module>SAA-14LocalMcpServer</module>
+        <module>SAA-15LocalMcpClient</module>
     </modules>
 
     <properties>
@@ -72,6 +73,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-actuator</artifactId>
                 <version>${spring-boot.version}</version>
+            </dependency>
+
+            <!-- 提供 WebFlux 和内嵌 Netty，版本与当前 AI starter 引入的 Spring Boot 保持一致。 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-webflux</artifactId>
+                <version>3.5.8</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
