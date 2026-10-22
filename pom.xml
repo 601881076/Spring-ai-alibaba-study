@@ -24,6 +24,7 @@
         <module>SAA-13ToolCalling</module>
         <module>SAA-14LocalMcpServer</module>
         <module>SAA-15LocalMcpClient</module>
+        <module>springAI-16chat-mcpclient-call-baidumcp</module>
     </modules>
 
     <properties>

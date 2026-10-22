@@ -1,0 +1,51 @@
+server:
+  port: 8015
+  servlet:
+    encoding:
+      # 设置全局编码格式
+      enabled: true
+      force: true
+      charset: UTF-8
+
+--- #################### ai 配置 ###################
+spring:
+  ai:
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY} # 配置大模型访问 key.
+      base-url: 'https://ws-uh2v3ki9kl4yvhyu.cn-beijing.maas.aliyuncs.com'
+      chat:
+        options:
+          model: 'qwen3.7-plus'
+          # 此模型使用多模态端点，纯文本请求也需启用。
+          multi-model: true
+
+---
+#################### MCP 配置 ###################
+spring:
+  ai:
+    mcp:
+      client:
+        # ====mcp-client Config=============
+
+        # 客户端通信模式：async (异步)。
+        # 意味着客户端与 MCP Server 的交互不会阻塞主线程。
+        type: async
+
+        # 请求超时时间：60秒。
+        # 因为调用外部工具（如查询数据库、调用第三方API）或等待大模型决策可能需要较长时间，
+        # 设置合理的超时时间可以避免连接因短暂无响应而断开。
+        request-timeout: 60s
+
+        # 工具回调机制开关：true。
+        # 开启后，客户端会自动获取 MCP Server 提供的工具列表，
+        # 并将其转换为大模型能理解的 Tool Calling 格式（注册到 Spring AI 的上下文中），
+        # 从而让大模型拥有调用这些工具的能力。
+        toolcallback:
+          enabled: true
+        # 指定 MCP Server 的配置文件路径（classpath 下的 mcp-server.json.comment）。
+        # 该 JSON 中通过 "mcpServers" 节点声明以 stdio（标准输入/输出）方式启动的
+        # MCP 服务，例如百度地图 MCP：包含 command、args、env 等信息。
+        # Spring AI 启动时会读取该文件，按配置拉起子进程并与 MCP Server 建立通信，
+        # 从而把 MCP 暴露的工具注册为大模型可调用的 function/tool。
+        stdio:
+          servers-configuration: classpath:/mcp-server.json

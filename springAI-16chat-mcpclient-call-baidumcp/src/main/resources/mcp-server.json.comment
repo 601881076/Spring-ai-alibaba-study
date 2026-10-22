@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    // MCP Server 的逻辑名称，可自定义；Spring AI 注册工具时会带上该前缀
+    "baidu-map": {
+      // 启动子进程的可执行命令。Windows 下用 cmd 包一层；
+      // Linux/macOS 一般直接写 "npx"
+      "command": "cmd",
+
+      // 传给 command 的参数：
+      //   /c  : cmd 执行完后续命令后退出
+      //   npx : Node 包执行器
+      //   -y  : 自动确认安装（免交互）
+      //   @baidumap/mcp-server-baidu-map : 百度地图官方 MCP Server 包
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@baidumap/mcp-server-baidu-map"
+      ],
+
+      // 传给子进程的环境变量
+      "env": {
+        // 百度地图开放平台 AK，MCP Server 用它调用百度地图 API
+        // 建议改为从环境变量注入，不要硬编码进仓库
+        "BAIDU_MAP_API_KEY": "yHWFqCBXiiwVrk4psrl7IvqE7IsiBgQ6"
+      }
+    }
+  }
+}
