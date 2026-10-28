@@ -59,6 +59,11 @@ public class StreamOutputController {
         return deepseekChatClient.prompt(question).stream().content();
     }
 
+    /**
+     * localhost:8081/index.html
+     * @param question
+     * @return
+     */
     @GetMapping(value = "/stream/chatflux4", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<String>> chatflux4(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
         log.info("chatflux4 input: questionLength={}", question.length());
