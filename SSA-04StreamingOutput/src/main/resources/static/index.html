@@ -59,13 +59,20 @@
 </head>
 <body>
 <textarea id="messageInput" rows="4" cols="50" placeholder="请输入你的问题..."></textarea><br>
-<button onclick="sendMsg()">发送提问</button>
+<button id="sendButton" onclick="sendMsg()">发送提问</button>
+<div id="status" role="status" aria-live="polite"></div>
 <div id="messages"></div>
 <script>
     function sendMsg() {
         // 获取用户输入的消息
         const message = document.getElementById('messageInput').value;
         if (message === "") return false;
+
+        const statusDiv = document.getElementById('status');
+        const sendButton = document.getElementById('sendButton');
+        statusDiv.textContent = '正在回答…';
+        // 本次连接结束前禁止重复发送，避免多条回答同时更新同一个状态区域。
+        sendButton.disabled = true;
 
         //1 客户端使用 JavaScript 的 EventSource 对象连接到服务器上的一个特定端点（URL）
         const eventSource = new EventSource('stream/chatflux4?question=' + encodeURIComponent(message));
@@ -78,10 +85,20 @@
             messagesDiv.textContent += data;
         });
 
+        // 只有收到后端确认的 done 才标记完成，连接关闭本身不能证明回答完整。
+        eventSource.addEventListener('done', function () {
+            statusDiv.textContent = '已完成';
+            // 主动关闭 EventSource，避免流结束后浏览器自动重连并重复生成。
+            eventSource.close();
+            sendButton.disabled = false;
+        });
+
         //3 监听错误事件
         eventSource.onerror = function (error) {
             console.error('EventSource 发生错误：', error);
+            statusDiv.textContent = '连接已中断，回答未完成';
             eventSource.close(); // 关闭连接
+            sendButton.disabled = false;
         };
     }
 </script>
