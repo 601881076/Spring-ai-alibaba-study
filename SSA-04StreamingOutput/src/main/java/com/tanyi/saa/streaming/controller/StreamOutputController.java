@@ -109,6 +109,12 @@ public class StreamOutputController {
                     .stream()
                     // 保留 Generation 中的结束原因；content() 只提供正文，无法完成此处的判断。
                     .chatResponse()
+                    // 记录模型流的完成、异常或取消信号；流结束不等于回答完整。
+                    // signal 有以下几种信号:
+                    // onComplete：流正常结束，回答完整性仍由 STOP 判断。
+                    // onError：流异常结束。
+                    // cancel：订阅被取消。
+                    .doFinally(signal -> log.info("chatflux4 model stream terminated: signal={}", signal))
                     // 按上游顺序处理片段；保存结束原因和发送正文保持同一顺序。
                     .concatMap(response -> toDeltaEvent(response, finishReason));
             // concatWith : 只有前面的 events 正常完成，才执行后面的流. 等正文流正常完成后，才订阅后面的 Mono；异常和取消不会进入该完成分支。
