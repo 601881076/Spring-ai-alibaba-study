@@ -110,6 +110,16 @@
             document.getElementById('stopButton').disabled = true;
         });
 
+        // failure 是服务端发送的业务事件；关闭后清除连接引用，忽略随后到达的旧事件。
+        eventSource.addEventListener('failure', function (event) {
+            if (currentEventSource !== eventSource) return;
+            statusDiv.textContent = event.data;
+            eventSource.close();
+            currentEventSource = null;
+            sendButton.disabled = false;
+            document.getElementById('stopButton').disabled = true;
+        });
+
         //3 监听错误事件
         eventSource.onerror = function (error) {
             if (currentEventSource !== eventSource) return;

@@ -34,6 +34,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 class StreamOutputWebTest {
 
     /**
+     * 模型响应解析失败时保留已有正文，并以失败事件结束回答。
+     *
+     * @throws IOException 本地模型服务启动失败时抛出
+     */
+    @Test
+    void errorSendsFailure() throws IOException {
+        String body = modelChunk("部分回答", "null") + "data: {invalid-json}\n\n";
+        List<ServerSentEvent<String>> events = requestEvents(body);
+
+        assertThat(events).extracting(ServerSentEvent::event).containsExactly("delta", "failure");
+        assertThat(events).extracting(ServerSentEvent::data)
+                .containsExactly("部分回答", "模型调用失败，回答未完成，请重新尝试");
+    }
+
+    /**
      * 正文逐段返回后，正常结束标志产生唯一的 done 事件。
      *
      * @throws IOException 本地模型服务启动失败时抛出

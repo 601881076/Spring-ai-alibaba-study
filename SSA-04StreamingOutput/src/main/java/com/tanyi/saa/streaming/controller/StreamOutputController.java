@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * 提供 DeepSeek、千问的流式聊天接口，演示 ChatModel 和 ChatClient 两种调用方式。
  *
- * <p>chatflux4 使用具名 SSE 事件：delta 携带正文片段，done 表示模型已正常结束。
+ * <p>chatflux4 使用具名 SSE 事件：delta 携带正文片段，done 表示模型已正常结束，failure 表示调用失败。
  * 其余接口直接返回文字流，便于比较两种响应格式。
  */
 @RestController
@@ -93,7 +93,7 @@ public class StreamOutputController {
      * done 的 data 保存模型结束原因，delta 的 data 保存原始正文片段。
      *
      * @param question 用户问题
-     * @return 回答片段和正常完成事件；异常信号继续向下游传递
+     * @return 回答片段和正常完成事件；调用异常时发送失败事件并结束
      */
     @GetMapping(value = "/stream/chatflux4", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ServerSentEvent<String>> chatflux4(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
@@ -121,7 +121,23 @@ public class StreamOutputController {
             // Mono.defer 把 get() 和完成判断推迟到此时，读取最终原因，而不是构建链路时的空串。执行到这里时，再读取最终的 finishReason。
             // 完成事件统一在这里生成一次，避免多个片段携带 STOP 时重复发送 done。
             return events.concatWith(Mono.defer(() -> completeEvent(finishReason.get())));
-        });
+        // 放在 defer 外部，同时接住创建模型请求和消费响应期间的异常。
+        }).onErrorResume(error -> failureEvent(error));
+    }
+
+    /**
+     * 将调用异常转换为失败事件，使用固定提示避免向页面泄露上游错误详情。
+     *
+     * @param error 模型调用异常
+     * @return 失败提示事件，发送后响应流结束
+     */
+    private Mono<ServerSentEvent<String>> failureEvent(Throwable error) {
+        log.warn("chatflux4 failed: errorType={}", error.getClass().getSimpleName());
+        ServerSentEvent<String> event = ServerSentEvent.<String>builder()
+                .event("failure")
+                .data("模型调用失败，回答未完成，请重新尝试")
+                .build();
+        return Mono.just(event);
     }
 
     /**
