@@ -34,6 +34,11 @@
             background-color: #0056b3;
         }
 
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         #messages {
             margin-top: 20px;
             padding: 15px;
@@ -60,9 +65,13 @@
 <body>
 <textarea id="messageInput" rows="4" cols="50" placeholder="请输入你的问题..."></textarea><br>
 <button id="sendButton" onclick="sendMsg()">发送提问</button>
+<button id="stopButton" onclick="stopMsg()" disabled>停止回答</button>
 <div id="status" role="status" aria-live="polite"></div>
 <div id="messages"></div>
 <script>
+    // 保存当前连接，供停止按钮访问。
+    let currentEventSource = null;
+
     function sendMsg() {
         // 获取用户输入的消息
         const message = document.getElementById('messageInput').value;
@@ -76,8 +85,11 @@
 
         //1 客户端使用 JavaScript 的 EventSource 对象连接到服务器上的一个特定端点（URL）
         const eventSource = new EventSource('stream/chatflux4?question=' + encodeURIComponent(message));
+        currentEventSource = eventSource;
+        document.getElementById('stopButton').disabled = false;
         //2 监听消息事件
         eventSource.addEventListener('delta', function (event) {
+            if (currentEventSource !== eventSource) return;
             // 获取流式返回的数据
             const data = event.data;
             // 将接收到的数据展示到页面上
@@ -87,19 +99,39 @@
 
         // 只有收到后端确认的 done 才标记完成，连接关闭本身不能证明回答完整。
         eventSource.addEventListener('done', function () {
+            if (currentEventSource !== eventSource) return;
             statusDiv.textContent = '已完成';
             // 主动关闭 EventSource，避免流结束后浏览器自动重连并重复生成。
             eventSource.close();
+            if (currentEventSource === eventSource) {
+                currentEventSource = null;
+            }
             sendButton.disabled = false;
+            document.getElementById('stopButton').disabled = true;
         });
 
         //3 监听错误事件
         eventSource.onerror = function (error) {
+            if (currentEventSource !== eventSource) return;
             console.error('EventSource 发生错误：', error);
             statusDiv.textContent = '连接已中断，回答未完成';
             eventSource.close(); // 关闭连接
+            if (currentEventSource === eventSource) {
+                currentEventSource = null;
+            }
             sendButton.disabled = false;
+            document.getElementById('stopButton').disabled = true;
         };
+    }
+
+    function stopMsg() {
+        if (currentEventSource === null) return;
+
+        currentEventSource.close();
+        currentEventSource = null;
+        document.getElementById('status').textContent = '已取消';
+        document.getElementById('sendButton').disabled = false;
+        document.getElementById('stopButton').disabled = true;
     }
 </script>
 </body>
