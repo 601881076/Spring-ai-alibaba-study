@@ -8,10 +8,13 @@ package com.tanyi.saa.streaming.controller;
  **/
 
 import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +22,8 @@ import reactor.core.publisher.Flux;
 
 @RestController
 public class StreamOutputController {
+    private static final Logger log = LoggerFactory.getLogger(StreamOutputController.class);
+
     // ************************ 使用 ChatModel 同时存在多模型 ********************
 
     //V1 通过ChatModel实现stream实现流式输出
@@ -55,7 +60,16 @@ public class StreamOutputController {
     }
 
     @GetMapping(value = "/stream/chatflux4", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> chatflux4(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
-        return qwenChatClient.prompt(question).stream().content();
+    public Flux<ServerSentEvent<String>> chatflux4(@RequestParam(name = "question", defaultValue = "你是谁") String question) {
+        log.info("chatflux4 input: questionLength={}", question.length());
+
+        Flux<ServerSentEvent<String>> result = qwenChatClient.prompt(question)
+                .stream()
+                .content()
+                .map(content -> ServerSentEvent.<String>builder()
+                        .event("delta")
+                        .data(content)
+                        .build());
+        return result;
     }
 }
