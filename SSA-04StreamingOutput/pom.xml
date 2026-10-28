@@ -18,6 +18,13 @@
     </properties>
 
     <dependencies>
+        <!-- 为本地 HTTP 模型模拟测试提供 JUnit 5、AssertJ 和 WebTestClient 等测试工具。 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring-boot.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- 提供 WebFlux 和内嵌 Netty，版本与当前 AI starter 引入的 Spring Boot 保持一致。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -51,4 +58,14 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- 使用支持 JUnit 5 的测试执行插件，确保 StreamOutputWebTest 能被发现并执行。 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+            </plugin>
+        </plugins>
+    </build>
 </project>
