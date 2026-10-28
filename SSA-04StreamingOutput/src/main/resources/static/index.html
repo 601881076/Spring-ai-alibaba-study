@@ -68,7 +68,7 @@
         if (message === "") return false;
 
         //1 客户端使用 JavaScript 的 EventSource 对象连接到服务器上的一个特定端点（URL）
-        const eventSource = new EventSource('stream/chatflux2?question=' + encodeURIComponent(message));
+        const eventSource = new EventSource('stream/chatflux4?question=' + encodeURIComponent(message));
         //2 监听消息事件
         eventSource.onmessage = function (event) {
             // 获取流式返回的数据
