@@ -111,8 +111,8 @@ public class StreamOutputController {
                     .chatResponse()
                     // 按上游顺序处理片段；保存结束原因和发送正文保持同一顺序。
                     .concatMap(response -> toDeltaEvent(response, finishReason));
-            // concatWith 等正文流正常完成后，才订阅后面的 Mono；异常和取消不会进入该完成分支。
-            // Mono.defer 把 get() 和完成判断推迟到此时，读取最终原因，而不是构建链路时的空串。
+            // concatWith : 只有前面的 events 正常完成，才执行后面的流. 等正文流正常完成后，才订阅后面的 Mono；异常和取消不会进入该完成分支。
+            // Mono.defer 把 get() 和完成判断推迟到此时，读取最终原因，而不是构建链路时的空串。执行到这里时，再读取最终的 finishReason。
             // 完成事件统一在这里生成一次，避免多个片段携带 STOP 时重复发送 done。
             return events.concatWith(Mono.defer(() -> completeEvent(finishReason.get())));
         });
